@@ -1,0 +1,4 @@
+---
+# Define the mlag interface details to be configured (see README for examples)
+interfaces: { }
+
