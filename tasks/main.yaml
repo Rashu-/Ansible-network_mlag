@@ -9,28 +9,28 @@
 
 - name: Configure link aggregation on interfaces 
   nxos_linkagg:
-    group: "{{ item.value.name | regex_replace('port-channel') }}"    
-    mode: "{{ item.value.linkagg.mode | default(omit) }}"
-    members: "{{ item.value.linkagg.member_of_po | default(omit) }}"
-    force: "{{ item.value.linkagg.force | default(omit) }}"
-    min_links: "{{ item.value.linkagg.min_links | default(omit) }}"
-  with_dict: "{{ interfaces }}"
+    group: "{{ item.name | regex_replace('port-channel') }}"    
+    mode: "{{ item.linkagg.mode | default(omit) }}"
+    members: "{{ item.linkagg.member_of_po | default(omit) }}"
+    force: "{{ item.linkagg.force | default(omit) }}"
+    min_links: "{{ item.linkagg.min_links | default(omit) }}"
+  loop: "{{ interfaces | net_int_filter }}"
   when: >
     ansible_network_os == 'nxos' and
-    item.value.linkagg is defined
+    item.linkagg is defined
   tags: 
     - mlag_config
     - nxos 
 
 - name: Configure vPC on interfaces 
   nxos_vpc_interface: 
-    portchannel: "{{ item.value.name | regex_replace('port-channel') }}"
-    state: "{{ item.value.vpc.state | default('present') }}"
-    vpc: "{{ item.value.vpc.id | default( item.value.name | regex_replace('port-channel') ) }}"    
-  with_dict: "{{ interfaces }}"
+    portchannel: "{{ item.name | regex_replace('port-channel') }}"
+    state: "{{ item.vpc.state | default('present') }}"
+    vpc: "{{ item.vpc.id | default( item.name | regex_replace('port-channel') ) }}"    
+  loop: "{{ interfaces | net_int_filter }}"
   when: >
     ansible_network_os == 'nxos' and    
-    item.value.vpc is defined
+    item.vpc is defined
   tags: 
     - mlag_config
     - nxos
